@@ -1,0 +1,554 @@
+{
+	"info": {
+		"_postman_id": "blacklist-api-collection",
+		"name": "Blacklist API - Universidad de los Andes",
+		"description": "API para manejar los correos del Blacklist.\n\nEste microservicio permite:\n- Revisar si un email está en el blacklist\n- Agregar emails al blacklist\n- Rastrear direcciones IP y marcas de tiempo de las adiciones al blacklist\n\n## Authentication\nTodos los endpoints a excepción de los de Testing requieren un Token Bearer.\n\nToken por defecto: `my-super-secret-static-token`\n\n## Base URL\n- Local: `http://localhost:8080`\n- AWS Elastic Beanstalk: Se actualiza `{{base_url}}` con la URL del despliegue",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Blacklist Management",
+			"item": [
+				{
+					"name": "Add Email to Blacklist",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has message property\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"spammer@example.com\",\n    \"app_uuid\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"blocked_reason\": \"Spam sender detected by security team\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/blacklists",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"blacklists"
+							]
+						},
+						"description": "Adds a new email to the global blacklist.\n\n**Required fields:**\n- `email` (string): The email address to blacklist\n- `app_uuid` (UUID): The client application's unique identifier\n- `blocked_reason` (string, optional): Reason for blacklisting (max 255 characters)\n\n**Automatic fields:**\n- IP address: Captured from the request\n- Timestamp: Automatically recorded\n\n**Returns:**\n- 201: Email successfully added to blacklist\n- 409: Email already exists in blacklist\n- 400: Invalid email format\n- 403: Invalid or missing authorization token"
+					},
+					"response": [
+						{
+							"name": "Success - Email Added",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"spammer@example.com\",\n    \"app_uuid\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"blocked_reason\": \"Spam sender detected by security team\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/blacklists",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"blacklists"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Email 'spammer@example.com' was added to the blacklist successfully\"\n}"
+						},
+						{
+							"name": "Error - Email Already Exists",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"spammer@example.com\",\n    \"app_uuid\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"blocked_reason\": \"Spam sender\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/blacklists",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"blacklists"
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"detail\": \"Email 'spammer@example.com' already exists in the blacklist.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Check if Email is Blacklisted",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has is_blacklisted property\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('is_blacklisted');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/blacklists/:email",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"blacklists",
+								":email"
+							],
+							"variable": [
+								{
+									"key": "email",
+									"value": "spammer@example.com",
+									"description": "Email address to check"
+								}
+							]
+						},
+						"description": "Checks if a specific email address exists in the global blacklist.\n\n**Path parameter:**\n- `email` (string): The email address to check\n\n**Returns:**\n- 200: Success with blacklist status\n  - If blacklisted: Returns email details, reason, app_uuid, and date added\n  - If not blacklisted: Returns is_blacklisted: false\n- 403: Invalid or missing authorization token"
+					},
+					"response": [
+						{
+							"name": "Email Found in Blacklist",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/blacklists/spammer@example.com",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"blacklists",
+										"spammer@example.com"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"is_blacklisted\": true,\n    \"reason\": \"Spam sender detected by security team\",\n    \"app_uuid\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"date_added\": \"2025-10-13T10:30:00Z\"\n}"
+						},
+						{
+							"name": "Email Not Found in Blacklist",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/blacklists/clean@example.com",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"blacklists",
+										"clean@example.com"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"is_blacklisted\": false\n}"
+						}
+					]
+				}
+			],
+			"description": "Main endpoints for managing the email blacklist. These endpoints require Bearer Token authentication."
+		},
+		{
+			"name": "Health & Monitoring",
+			"item": [
+				{
+					"name": "Health Check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Status is healthy\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.status).to.eql('healthy');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Performs a simple health check of the application.\n\nUseful for:\n- Load balancer health checks\n- Monitoring systems\n- Deployment verification\n\n**Authentication:** Not required"
+					},
+					"response": [
+						{
+							"name": "Healthy",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/health",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"health"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"healthy\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Testing Endpoints",
+			"item": [
+				{
+					"name": "Reset Database",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has deleted_count\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('deleted_count');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/reset",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reset"
+							]
+						},
+						"description": "Clears all entries from the blacklist database."
+					},
+					"response": [
+						{
+							"name": "Database Cleared",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/reset",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"reset"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Database cleared. 5 entries deleted.\",\n    \"deleted_count\": 5\n}"
+						}
+					]
+				},
+				{
+					"name": "Generate Error",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 500\", function () {",
+									"    pm.response.to.have.status(500);",
+									"});",
+									"",
+									"pm.test(\"Error message is present\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/error",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"error"
+							]
+						},
+						"description": "Generates a division by zero error for testing error handling."
+					},
+					"response": [
+						{
+							"name": "Internal Server Error",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/error",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"error"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"An unexpected internal server error occurred.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Environment Variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has env property\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('env');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/env",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"env"
+							]
+						},
+						"description": "Returns all environment variables visible to the application."
+					},
+					"response": [
+						{
+							"name": "Environment Variables",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/env",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"env"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"env\": {\n        \"RDS_HOSTNAME\": \"db\",\n        \"RDS_PORT\": \"5432\",\n        \"RDS_USERNAME\": \"postgres\",\n        \"RDS_DB_NAME\": \"blacklistdb\",\n        \"AUTH_TOKEN\": \"my-super-secret-static-token\"\n    }\n}"
+						}
+					]
+				}
+			],
+			"description": "Testing and debugging endpoints."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "my-super-secret-static-token",
+			"type": "string"
+		}
+	]
+}

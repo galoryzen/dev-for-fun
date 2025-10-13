@@ -1,0 +1,51 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: blacklist-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: blacklistdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - blacklist-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: blacklist-app
+    environment:
+      RDS_HOSTNAME: db
+      RDS_PORT: 5432
+      RDS_USERNAME: postgres
+      RDS_PASSWORD: postgres
+      RDS_DB_NAME: blacklistdb
+      AUTH_TOKEN: my-super-secret-static-token
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - blacklist-network
+    restart: unless-stopped
+    volumes:
+      - ./app:/app/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  blacklist-network:
+    driver: bridge
