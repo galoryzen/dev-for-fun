@@ -44,6 +44,27 @@ def reset_database():
         )
     finally:
         db.close()
+        
+@app.get("/all", tags=["Testing"])
+def get_all_blacklist_entries():
+    from sqlalchemy.orm import Session
+    from app.database import SessionLocal
+    from app.models import BlacklistEntry
+
+    db: Session = SessionLocal()
+    try:
+        entries = db.query(BlacklistEntry).all()
+        return {
+            "status": "success",
+            "entries": [{"id": entry.id, "email": entry.email} for entry in entries]
+        }
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"status": "error", "message": f"Failed to retrieve entries: {str(e)}"}
+        )
+    finally:
+        db.close()
 
 
 @app.get("/error", tags=["Testing"])
