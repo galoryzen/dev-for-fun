@@ -181,7 +181,6 @@ postgres_data/
 # AWS Elastic Beanstalk
 .elasticbeanstalk/
 .eb/
-.ebextensions/
 
 # Logs
 *.log
@@ -194,11 +193,6 @@ logs/
 *.swp
 *~
 
-# Project specific
-aaa.py
-*.pdf
-/Downloads/
-
 # Alembic
 alembic/versions/*.pyc
 
@@ -209,5 +203,4 @@ alembic/versions/*.pyc
 # Postman generated files (optional - you may want to keep your collection)
 # *.postman_collection.json
 
-# Documentation builds
-documentation.html
+*.pdf
