@@ -29,7 +29,7 @@ Grupo DevForFun
 
    This will start:
    - PostgreSQL database on port 5432
-   - FastAPI application on port 8080
+   - FastAPI application on port 8000
 
 3. **Check the services are running**
    ```bash
@@ -42,10 +42,10 @@ Grupo DevForFun
    ```
 
 5. **Access the API**
-   - API Base URL: http://localhost:8080
-   - Health Check: http://localhost:8080/health
-   - Interactive API Docs: http://localhost:8080/docs
-   - Alternative API Docs: http://localhost:8080/redoc
+   - API Base URL: http://localhost:8000
+   - Health Check: http://localhost:8000/health
+   - Interactive API Docs: http://localhost:8000/docs
+   - Alternative API Docs: http://localhost:8000/redoc
 
 ## Project Structure
 
@@ -60,6 +60,8 @@ Grupo DevForFun
 │   └── routers/
 │       ├── __init__.py
 │       └── blacklist.py  # Blacklist endpoints
+├── tests/
+|  ├── test.py
 ├── Dockerfile
 ├── docker-compose.yml
 ├── .dockerignore
@@ -79,3 +81,17 @@ Grupo DevForFun
 | blocked_reason | VARCHAR(255) | NULL                    |
 | ip_address     | VARCHAR(45)  | NOT NULL                |
 | created_at     | TIMESTAMP    | NOT NULL, DEFAULT NOW() |
+
+
+## Ejecución tests:
+Se implementaron pruebas con Pytest para validar el correcto funcionamiento de los endpoints de la API.
+
+Estas pruebas validan los principales endpoints:
+- /health → Verifica el estado del servicio.
+- /blacklists → Agrega y consulta correos bloqueados.
+- /reset → Restablece la base de datos (opcional para entorno de pruebas).
+
+**Ejecución**
+``` bash
+pytest -v tests/test.py
+```
