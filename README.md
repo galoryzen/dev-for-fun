@@ -29,7 +29,7 @@ Grupo DevForFun
 
    This will start:
    - PostgreSQL database on port 5432
-   - FastAPI application on port 8080
+   - FastAPI application on port 8000
 
 3. **Check the services are running**
    ```bash
@@ -42,10 +42,10 @@ Grupo DevForFun
    ```
 
 5. **Access the API**
-   - API Base URL: http://localhost:8080
-   - Health Check: http://localhost:8080/health
-   - Interactive API Docs: http://localhost:8080/docs
-   - Alternative API Docs: http://localhost:8080/redoc
+   - API Base URL: http://localhost:8000
+   - Health Check: http://localhost:8000/health
+   - Interactive API Docs: http://localhost:8000/docs
+   - Alternative API Docs: http://localhost:8000/redoc
 
 ## Project Structure
 
