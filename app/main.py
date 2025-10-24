@@ -1,8 +1,9 @@
 import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Request, status, Depends
 from fastapi.responses import JSONResponse
-from app.database import engine, Base
+from sqlalchemy.orm import Session
+from app.database import engine, Base, get_db
 from app.routers import blacklist
 from app import models
 
@@ -30,11 +31,7 @@ def health_check():
 
 
 @app.get("/reset", tags=["Testing"])
-def reset_database():
-    from sqlalchemy.orm import Session
-    from app.database import SessionLocal
-
-    db: Session = SessionLocal()
+def reset_database(db: Session = Depends(get_db)):
     try:
         # Delete all entries from the blacklist table
         deleted_count = db.query(models.BlacklistEntry).delete()
@@ -50,18 +47,12 @@ def reset_database():
             status_code=500,
             content={"status": "error", "message": f"Failed to clear database: {str(e)}"}
         )
-    finally:
-        db.close()
         
 @app.get("/all", tags=["Testing"])
-def get_all_blacklist_entries():
-    from sqlalchemy.orm import Session
-    from app.database import SessionLocal
-    from app.models import BlacklistEntry
 
-    db: Session = SessionLocal()
+def get_all_blacklist_entries(db: Session = Depends(get_db)):
     try:
-        entries = db.query(BlacklistEntry).all()
+        entries = db.query(models.BlacklistEntry).all()
         return {
             "status": "success",
             "entries": [{"id": entry.id, "email": entry.email} for entry in entries]
@@ -71,8 +62,6 @@ def get_all_blacklist_entries():
             status_code=500,
             content={"status": "error", "message": f"Failed to retrieve entries: {str(e)}"}
         )
-    finally:
-        db.close()
 
 
 @app.get("/error", tags=["Testing"])

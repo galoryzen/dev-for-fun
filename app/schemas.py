@@ -3,7 +3,7 @@ Pydantic schemas for request and response validation.
 """
 from typing import Optional
 from datetime import datetime
-from pydantic import BaseModel, EmailStr, Field, UUID4
+from pydantic import BaseModel, EmailStr, Field, UUID4, ConfigDict
 
 
 class BlacklistCreate(BaseModel):
@@ -14,14 +14,15 @@ class BlacklistCreate(BaseModel):
     app_uuid: UUID4 = Field(..., description="The client application's unique identifier (UUID)")
     blocked_reason: Optional[str] = Field(None, max_length=255, description="Reason for blacklisting (optional, max 255 chars)")
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "email": "spammer@example.com",
                 "app_uuid": "550e8400-e29b-41d4-a716-446655440000",
                 "blocked_reason": "Spam sender"
             }
         }
+    )
 
 
 class BlacklistAddResponse(BaseModel):
@@ -30,12 +31,13 @@ class BlacklistAddResponse(BaseModel):
     """
     message: str
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "message": "Email 'spammer@example.com' was added to the blacklist successfully"
             }
         }
+    )
 
 
 class BlacklistCheckResponse(BaseModel):
@@ -47,8 +49,8 @@ class BlacklistCheckResponse(BaseModel):
     app_uuid: Optional[str] = None
     date_added: Optional[datetime] = None
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "is_blacklisted": True,
                 "reason": "Spam sender",
@@ -56,3 +58,4 @@ class BlacklistCheckResponse(BaseModel):
                 "date_added": "2025-10-13T10:30:00Z"
             }
         }
+    )

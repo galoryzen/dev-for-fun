@@ -2,11 +2,6 @@ version: 0.2
 
 env:
   variables:
-    RDS_HOSTNAME: localhost
-    RDS_PORT: 5432
-    RDS_USERNAME: postgres
-    RDS_PASSWORD: postgres
-    RDS_DB_NAME: blacklistdb
     AUTH_TOKEN: my-super-secret-static-token
 
 phases:
@@ -18,20 +13,9 @@ phases:
       - pip install --upgrade pip
       - pip install -r requirements.txt
 
-  pre_build:
-    commands:
-      - echo "Starting PostgreSQL with docker-compose..."
-      - docker-compose up -d db
-
-      - echo "Waiting for PostgreSQL healthcheck..."
-      - timeout 60 sh -c 'until docker-compose ps db | grep -q "healthy"; do echo "Waiting for db healthcheck..."; sleep 2; done'
-
-      - echo "PostgreSQL is ready!"
-      - docker-compose ps
-
   build:
     commands:
-      - echo "Running unit tests..."
+      - echo "Running unit tests with SQLite..."
       - pytest tests/test.py -v --tb=short
       - echo "Tests completed successfully!"
 
