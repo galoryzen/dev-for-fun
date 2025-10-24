@@ -20,23 +20,14 @@ phases:
 
   pre_build:
     commands:
-      - echo "Starting PostgreSQL Docker container..."
-      - docker run -d --name test-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=blacklistdb -p 5432:5432 postgres:15-alpine
+      - echo "Starting PostgreSQL with docker-compose..."
+      - docker-compose up -d db
 
-      - echo "Installing PostgreSQL client..."
-      - apt-get update && apt-get install -y postgresql-client
+      - echo "Waiting for PostgreSQL healthcheck..."
+      - timeout 60 sh -c 'until docker-compose ps db | grep -q "healthy"; do echo "Waiting for db healthcheck..."; sleep 2; done'
 
-      - echo "Waiting for PostgreSQL to be ready..."
-      - |
-        for i in {1..30}; do
-          if pg_isready -h localhost -p 5432 -U postgres; then
-            echo "PostgreSQL is ready!"
-            break
-          fi
-          echo "Waiting for PostgreSQL ($i/30)..."
-          sleep 2
-        done
-      - echo "Database service is available for migrations/tests!"
+      - echo "PostgreSQL is ready!"
+      - docker-compose ps
 
   build:
     commands:
