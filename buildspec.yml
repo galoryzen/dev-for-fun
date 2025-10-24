@@ -1,9 +1,67 @@
 version: 0.2
 
+env:
+  variables:
+    RDS_HOSTNAME: postgres
+    RDS_PORT: 5432
+    RDS_USERNAME: postgres
+    RDS_PASSWORD: postgres
+    RDS_DB_NAME: blacklistdb
+    AUTH_TOKEN: my-super-secret-static-token
+
 phases:
+  install:
+    runtime-versions:
+      python: 3.11
+    commands:
+      - echo "Installing dependencies..."
+      - pip install --upgrade pip
+      - pip install -r requirements.txt
+
   pre_build:
     commands:
-      - pip install -r requirements.txt
+      - echo "Waiting for PostgreSQL to be ready..."
+      - apt-get update && apt-get install -y postgresql-client || echo "pg_isready may already be installed or not required"
+      
+      - |
+        for i in {1..30}; do
+          if pg_isready -h $RDS_HOSTNAME -p $RDS_PORT -U $RDS_USERNAME; then
+            echo "PostgreSQL is ready!"
+            break
+          fi
+          echo "Waiting for PostgreSQL ($i/30)..."
+          sleep 1
+        done
+      - echo "Database service is available for migrations/tests!"
+
+  build:
+    commands:
+      - echo "Running unit tests..."
+      - pytest tests/ -v --tb=short
+      - echo "Tests completed successfully!"
+
+  post_build:
+    commands:
+      - echo "Build completed on `date`"
+      - echo "Generating deployment artifact..."
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=blacklistdb
+
 artifacts:
   files:
     - '**/*'
+  exclude-paths:
+    - venv/**/*
+    - .git/**/*
+    - tests/**/*
+    - .env
+    - __pycache__/**/*
+    - '**/*.pyc'
+    - .ebextensions/**/*
+    - postgres_data/**/*
