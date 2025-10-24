@@ -1,16 +1,24 @@
 import os
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from app.database import engine, Base
 from app.routers import blacklist
 from app import models
 
-Base.metadata.create_all(bind=engine)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(bind=engine)
+    yield
+    pass
+
 
 app = FastAPI(
     title="Blacklist API",
     description="API for managing a global email blacklist as per project requirements.",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 @app.get("/health", status_code=status.HTTP_200_OK, tags=["Health Check"])
