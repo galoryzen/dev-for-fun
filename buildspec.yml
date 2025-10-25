@@ -25,7 +25,7 @@ phases:
       - echo "Generating deployment artifact..."
 
 artifacts:
-  name: dev-for-fun-ci-${CODEBUILD_BUILD_NUMBER}
+  name: dev-for-fun-ci-${CODEBUILD_BUILD_NUMBER}.zip
   files:
     - '**/*'
   exclude-paths:
