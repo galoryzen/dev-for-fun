@@ -22,6 +22,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+
 @app.get("/health", status_code=status.HTTP_200_OK, tags=["Health Check"])
 def health_check():
     """
@@ -45,11 +46,12 @@ def reset_database(db: Session = Depends(get_db)):
         db.rollback()
         return JSONResponse(
             status_code=500,
-            content={"status": "error", "message": f"Failed to clear database: {str(e)}"}
+            content={"status": "error",
+                     "message": f"Failed to clear database: {str(e)}"}
         )
-        
-@app.get("/all", tags=["Testing"])
 
+
+@app.get("/all", tags=["Testing"])
 def get_all_blacklist_entries(db: Session = Depends(get_db)):
     try:
         entries = db.query(models.BlacklistEntry).all()
@@ -60,7 +62,8 @@ def get_all_blacklist_entries(db: Session = Depends(get_db)):
     except Exception as e:
         return JSONResponse(
             status_code=500,
-            content={"status": "error", "message": f"Failed to retrieve entries: {str(e)}"}
+            content={"status": "error",
+                     "message": f"Failed to retrieve entries: {str(e)}"}
         )
 
 
@@ -76,6 +79,7 @@ def get_env_variables():
 
 
 app.include_router(blacklist.router)
+
 
 @app.exception_handler(Exception)
 async def generic_exception_handler(request: Request, exc: Exception):

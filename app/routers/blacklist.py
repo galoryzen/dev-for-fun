@@ -7,8 +7,10 @@ from sqlalchemy.exc import IntegrityError
 from app import models, schemas
 from app.database import get_db
 
-STATIC_AUTH_TOKEN = os.environ.get('AUTH_TOKEN', 'my-super-secret-static-token')
+STATIC_AUTH_TOKEN = os.environ.get(
+    'AUTH_TOKEN', 'my-super-secret-static-token')
 security_scheme = HTTPBearer()
+
 
 def verify_token(credentials: HTTPAuthorizationCredentials = Security(security_scheme)):
     """
@@ -20,6 +22,7 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Security(security_s
             detail="Invalid or missing authorization token",
         )
     return credentials.credentials
+
 
 router = APIRouter(
     prefix="/blacklists",
@@ -55,7 +58,7 @@ def add_to_blacklist(
         blocked_reason=blacklist_item.blocked_reason,
         ip_address=source_ip
     )
-    
+
     try:
         db.add(new_entry)
         db.commit()
@@ -84,7 +87,10 @@ def check_blacklist(email: str, db: Session = Depends(get_db)):
     """
     Checks if a specific email address exists in the global blacklist.
     """
-    entry = db.query(models.BlacklistEntry).filter(models.BlacklistEntry.email == email).first()
+    entry = db.query(models.BlacklistEntry).filter(
+        models.BlacklistEntry.email == email).first()
+
+    1/0
 
     if entry:
         return {
@@ -94,4 +100,4 @@ def check_blacklist(email: str, db: Session = Depends(get_db)):
             "date_added": entry.created_at
         }
     else:
-        return { "is_blacklisted": False }
+        return {"is_blacklisted": False}
