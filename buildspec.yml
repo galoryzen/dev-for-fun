@@ -25,6 +25,7 @@ phases:
       - echo "Generating deployment artifact..."
 
 artifacts:
+  name: dev-for-fun-ci-${CODEBUILD_BUILD_NUMBER}
   files:
     - '**/*'
   exclude-paths:
@@ -36,3 +37,4 @@ artifacts:
     - '**/*.pyc'
     - .ebextensions/**/*
     - postgres_data/**/*
+    - pytest_cache/**/*
