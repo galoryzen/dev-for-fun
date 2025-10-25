@@ -90,8 +90,6 @@ def check_blacklist(email: str, db: Session = Depends(get_db)):
     entry = db.query(models.BlacklistEntry).filter(
         models.BlacklistEntry.email == email).first()
 
-    1/0
-
     if entry:
         return {
             "is_blacklisted": True,
