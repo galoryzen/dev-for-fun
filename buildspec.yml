@@ -3,38 +3,40 @@ version: 0.2
 env:
   variables:
     AUTH_TOKEN: my-super-secret-static-token
+    AWS_ACCOUNT_ID: 309232818744
+    AWS_DEFAULT_REGION: us-east-1
+    IMAGE_REPO_NAME: dev-for-fun
+    IMAGE_TAG: latest
 
 phases:
-  install:
-    runtime-versions:
-      python: 3.11
+  pre_build:
     commands:
-      - echo "Installing dependencies..."
+      - echo "Installing dependencies for testing..."
       - pip install --upgrade pip
       - pip install -r requirements.txt
+      - echo "Logging in to Amazon ECR..."
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
 
   build:
     commands:
       - echo "Running unit tests with SQLite..."
       - pytest tests/test.py -v --tb=short
       - echo "Tests completed successfully!"
+      - echo "Building Docker image..."
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CODEBUILD_BUILD_NUMBER
 
   post_build:
     commands:
       - echo "Build completed on `date`"
-      - echo "Generating deployment artifact..."
+      - echo "Pushing Docker images to ECR..."
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CODEBUILD_BUILD_NUMBER
+      - echo "Creating imagedefinitions.json for ECS deployment..."
+      - printf '[{"name":"dev-for-fun-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG > imagedefinitions.json
+      - cat imagedefinitions.json
 
 artifacts:
-  name: dev-for-fun-ci-${CODEBUILD_BUILD_NUMBER}.zip
   files:
-    - '**/*'
-  exclude-paths:
-    - venv/**/*
-    - .git/**/*
-    - tests/**/*
-    - .env
-    - __pycache__/**/*
-    - '**/*.pyc'
-    - .ebextensions/**/*
-    - postgres_data/**/*
-    - pytest_cache/**/*
+    - imagedefinitions.json
