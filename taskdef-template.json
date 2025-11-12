@@ -1,0 +1,68 @@
+{
+  "family": "dev-for-fun-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::309232818744:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "dev-for-fun-container",
+      "image": "${IMAGE_URI}",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "hostPort": 8000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "RDS_HOSTNAME",
+          "value": "blacklist-db.ca5swyweegju.us-east-1.rds.amazonaws.com"
+        },
+        {
+          "name": "RDS_PORT",
+          "value": "5432"
+        },
+        {
+          "name": "RDS_USERNAME",
+          "value": "postgres"
+        },
+        {
+          "name": "RDS_PASSWORD",
+          "value": "O5GqRaQO5YFh3Y4U6EKYNHyfDX0K8Qh2"
+        },
+        {
+          "name": "RDS_DB_NAME",
+          "value": "blacklistdb"
+        },
+        {
+          "name": "AUTH_TOKEN",
+          "value": "my-super-secret-static-token"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/dev-for-fun",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\" || exit 1"
+        ],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 60
+      }
+    }
+  ]
+}
