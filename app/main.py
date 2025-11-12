@@ -28,7 +28,7 @@ def health_check():
     """
     Performs a simple health check.
     """
-    return {"status": "healthy2"}
+    return {"status": "healthy"}
 
 
 @app.get("/reset", tags=["Testing"])
