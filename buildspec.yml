@@ -33,10 +33,14 @@ phases:
       - echo "Pushing Docker images to ECR..."
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CODEBUILD_BUILD_NUMBER
-      - echo "Creating imagedefinitions.json for ECS deployment..."
-      - printf '[{"name":"dev-for-fun-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG > imagedefinitions.json
-      - cat imagedefinitions.json
+      - echo "Creating task definition file for CodeDeploy..."
+      - export IMAGE_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - envsubst < taskdef-template.json > taskdef.json
+      - cat taskdef.json
+      - echo "AppSpec file is ready for CodeDeploy..."
+      - cat appspec.yaml
 
 artifacts:
   files:
-    - imagedefinitions.json
+    - appspec.yaml
+    - taskdef.json

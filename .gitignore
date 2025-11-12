@@ -203,4 +203,7 @@ alembic/versions/*.pyc
 # Postman generated files (optional - you may want to keep your collection)
 # *.postman_collection.json
 
-*.pdf
+# AWS ECS/Fargate deployment files with sensitive data
+task-definition.json
+imagedefinitions.json
+taskdef.json
