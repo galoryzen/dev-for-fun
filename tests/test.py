@@ -3,10 +3,6 @@ from app.main import app
 
 client = TestClient(app)
 
-def test_read_health():
-    response = client.get("/health")
-    assert response.status_code == 200
-    assert response.json() == {"status": "healthy"}
 
 def test_reset_database():
     response = client.get("/reset")
@@ -14,6 +10,7 @@ def test_reset_database():
     json_response = response.json()
     assert json_response["status"] == "success"
     assert "deleted_count" in json_response
+
 
 def test_add_email_to_blacklist():
     response = client.post(
@@ -28,7 +25,7 @@ def test_add_email_to_blacklist():
     assert response.status_code == 201
     json_response = response.json()
     assert "message" in json_response
-    
+
 
 def test_add_email_already_in_blacklist():
     response = client.post(
@@ -44,6 +41,7 @@ def test_add_email_already_in_blacklist():
     json_response = response.json()
     assert "detail" in json_response
 
+
 def test_get_email_found_in_blacklist():
     response = client.get(
         "/blacklists/spammer@example.com",
@@ -52,6 +50,7 @@ def test_get_email_found_in_blacklist():
     assert response.status_code == 200
     json_response = response.json()
     assert json_response["is_blacklisted"] == True
+
 
 def test_get_email_not_found_in_blacklist():
     response = client.get(

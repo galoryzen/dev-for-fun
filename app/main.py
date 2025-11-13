@@ -23,12 +23,12 @@ app = FastAPI(
 )
 
 
-@app.get("/health", status_code=status.HTTP_200_OK, tags=["Health Check"])
+@app.get("/health", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, tags=["Health Check"])
 def health_check():
     """
     Performs a simple health check.
     """
-    return {"status": "healthy"}
+    return {"status": "unhealthy"}
 
 
 @app.get("/reset", tags=["Testing"])
@@ -39,7 +39,7 @@ def reset_database(db: Session = Depends(get_db)):
         db.commit()
         return {
             "status": "success",
-            "message": f"Database cleared. {deleted_count} entries deleted. 1",
+            "message": f"Database cleared. {deleted_count} entries deleted.",
             "deleted_count": deleted_count
         }
     except Exception as e:
