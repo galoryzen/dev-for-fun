@@ -28,7 +28,7 @@ def health_check():
     """
     Performs a simple health check.
     """
-    return {"status": "healthy2"}
+    return {"status": "healthy"}
 
 
 @app.get("/reset", tags=["Testing"])
@@ -39,7 +39,7 @@ def reset_database(db: Session = Depends(get_db)):
         db.commit()
         return {
             "status": "success",
-            "message": f"Database cleared. {deleted_count} entries deleted.",
+            "message": f"Database cleared. {deleted_count} entries deleted. 1",
             "deleted_count": deleted_count
         }
     except Exception as e:
