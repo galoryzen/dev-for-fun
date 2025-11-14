@@ -26,7 +26,7 @@ app = FastAPI(
 @app.get("/health", status_code=status.HTTP_200_OK, tags=["Health Check"])
 def health_check():
     """
-    Performs a simple health check.
+    Performs a simple health check..
     """
     return {"status": "healthy"}
 
