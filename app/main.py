@@ -23,12 +23,12 @@ app = FastAPI(
 )
 
 
-@app.get("/health", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, tags=["Health Check"])
+@app.get("/health", status_code=status.HTTP_200_OK, tags=["Health Check"])
 def health_check():
     """
     Performs a simple health check.
     """
-    return {"status": "unhealthy"}
+    return {"status": "healthy"}
 
 
 @app.get("/reset", tags=["Testing"])

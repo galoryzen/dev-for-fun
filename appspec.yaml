@@ -5,6 +5,6 @@ Resources:
       Properties:
         TaskDefinition: <TASK_DEFINITION>
         LoadBalancerInfo:
-          ContainerName: "dev-for-fun-container"
+          ContainerName: "wrong-container-name"
           ContainerPort: 8000
         PlatformVersion: "LATEST"

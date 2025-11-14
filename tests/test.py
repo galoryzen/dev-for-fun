@@ -4,6 +4,12 @@ from app.main import app
 client = TestClient(app)
 
 
+def test_read_health():
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.json() == {"status": "healthy"}
+
+
 def test_reset_database():
     response = client.get("/reset")
     assert response.status_code == 200
