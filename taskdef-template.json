@@ -43,6 +43,18 @@
         {
           "name": "AUTH_TOKEN",
           "value": "my-super-secret-static-token"
+        },
+        {
+          "name": "NEW_RELIC_LICENSE_KEY",
+          "value": "8220b4b3bf142d59ee5bdfbed48bcc61FFFFNRAL"
+        },
+        {
+          "name": "NEW_RELIC_APP_NAME",
+          "value": "Blacklist-API-Production"
+        },
+        {
+          "name": "NEW_RELIC_LOG",
+          "value": "info"
         }
       ],
       "logConfiguration": {

@@ -1,11 +1,14 @@
-import os
-from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, status, Depends
-from fastapi.responses import JSONResponse
-from sqlalchemy.orm import Session
-from app.database import engine, Base, get_db
-from app.routers import blacklist
 from app import models
+from app.routers import blacklist
+from app.database import engine, Base, get_db
+from sqlalchemy.orm import Session
+from fastapi.responses import JSONResponse
+from fastapi import FastAPI, Request, status, Depends
+from contextlib import asynccontextmanager
+import os
+import newrelic.agent
+
+newrelic.agent.initialize()
 
 
 @asynccontextmanager

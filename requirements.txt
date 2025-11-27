@@ -7,3 +7,4 @@ alembic
 python-dotenv
 httpx
 pytest
+newrelic

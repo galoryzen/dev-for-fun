@@ -30,6 +30,9 @@ services:
       RDS_PASSWORD: postgres
       RDS_DB_NAME: blacklistdb
       AUTH_TOKEN: my-super-secret-static-token
+      NEW_RELIC_LICENSE_KEY: ${NEW_RELIC_LICENSE_KEY}
+      NEW_RELIC_APP_NAME: "Blacklist-API-Local"
+      NEW_RELIC_LOG: "info"
     ports:
       - "8000:8000"
     depends_on:
