@@ -60,7 +60,7 @@ def get_all_blacklist_entries(db: Session = Depends(get_db)):
         entries = db.query(models.BlacklistEntry).all()
         return {
             "status": "success",
-            "entries": [{"id": entry.id, "email": entry.email} for entry in entries]
+            "entries": [{"email": entry.email, "blocked_reason": entry.blocked_reason} for entry in entries]
         }
     except Exception as e:
         return JSONResponse(
